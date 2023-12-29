@@ -6,6 +6,13 @@ output: html_document
 ---
 ## Problema
 
+Il file dati sidro.xlsx contiene dati relativi ad alcune misure condotte su una serie di sidri diversi identificati dalla lettera S e da un numero progressivo. È stata misurata la concentrazione di una serie di molecole e dei polifenoli totali (PFT), l'acidità, il pH e l'etanolo. Infine è stato misurato il potere anti-ossidante (FRAP) dei sidri.
+
+1. mediante regressione lineare multivariata trovare il set minimo di covariate in grado di spiegare al meglio il potere anti-ossidante dei sidri (ovvero usare la misura FRAP come variabile dipendente)
+
+2. dire se le concentrazioni delle molecole - da Procyanidin B1 a Quercitin - misurate nei sidri siano tra loro correlate o meno
+
+Potete lavorare su questi dati per gentile concessione della Dott.ssa Federica Mainente che mi ha autorizzato a condividerli con voi per ragioni didattiche.
 
 ## Librerie
 
