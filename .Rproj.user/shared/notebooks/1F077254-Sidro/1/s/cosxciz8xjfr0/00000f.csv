@@ -1,2 +1,0 @@
-"0","sidro_data <- read_excel(""dati_sidro.xlsx"")"
-"0","head(sidro_data)"
