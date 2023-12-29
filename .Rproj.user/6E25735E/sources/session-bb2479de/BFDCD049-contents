@@ -1,0 +1,58 @@
+---
+title: "Sidro"
+author: "Piermarco Giustini"
+date: "2023-12-28"
+output: html_document
+---
+## Introduzione
+
+Questo documento presenta l'analisi dei dati relativi a diverse misure condotte su una serie di sidri, inclusa la concentrazione di diverse molecole, i polifenoli totali (PFT), l'acidità, il pH, l'etanolo e il potere anti-ossidante (FRAP).
+
+## Librerie
+
+```{r install-packages, include=FALSE}
+# Installazione del pacchetto readxl se non è già installato
+if (!requireNamespace("readxl", quietly = TRUE)) {
+  install.packages("readxl")
+}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+```
+## Preparazione dei Dati
+Carichiamo i nostri dati
+
+```{r}
+# Caricamento dei dati
+sidro_data <- read_excel("dati_sidro.xlsx")
+head(sidro_data)
+```
+## Regressione Lineare Multivariata
+L'obiettivo è trovare il set minimo di covariate che meglio spiegano il potere anti-ossidante dei sidri, utilizzando FRAP come variabile dipendente. Per fare ciò, si utilizza la regressione lineare multivariata.
+
+```{r}
+library(stats)
+# Separazione della variabile dipendente (FRAP) e delle covariate
+frap_values <- as.numeric(sidro_data[nrow(sidro_data), -1])
+print(frap_values)
+covariates <- as.matrix(sidro_data[-nrow(sidro_data), -1])
+print(covariates)
+```
+
+```{r}
+# Aggiunta della colonna di intercetta
+covariates <- cbind(1, covariates)
+
+# Regressione lineare multivariata
+model_full <- lm(frap_values ~ ., data = as.data.frame(covariates))
+
+# Riassunto del modello
+summary(model_full)
+
+# Selezione delle covariate significative
+significant_vars <- which(summary(model_full)$coefficients[, 4] < 0.05)
+covariates_reduced <- covariates[, significant_vars, drop = FALSE]
+
+# Modello ridotto
+model_reduced <- lm(frap_values ~ ., data = as.data.frame(covariates_reduced))
+summary(model_reduced)
+

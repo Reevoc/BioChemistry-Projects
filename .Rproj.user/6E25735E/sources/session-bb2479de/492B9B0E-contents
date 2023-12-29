@@ -1,0 +1,67 @@
+---
+title: "Sidro"
+author: "Piermarco Giustini"
+date: "2023-12-28"
+output: html_document
+---
+
+## Librerie
+
+```{r install-packages, include=FALSE}
+# Installazione del pacchetto readxl se non è già installato
+if (!requireNamespace("readxl", quietly = TRUE)) {
+  install.packages("readxl")
+}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+```
+
+## Regressione Lineare Multivariata
+
+### Introduzione alla Regressione Lineare Multivariata
+
+La regressione lineare multivariata è un metodo statistico utilizzato per comprendere la relazione tra una variabile dipendente (in questo caso, FRAP, che rappresenta il potere anti-ossidante dei sidri) e più variabili indipendenti o covariate. In questa analisi, cerchiamo di identificare quali tra le diverse misure e concentrazioni di molecole influenzano maggiormente il valore FRAP.
+
+### Divisione delle Covariate dalla Variabile Dipendente
+
+Per analizzare la relazione tra il valore FRAP e le altre misure, abbiamo diviso i dati in una variabile dipendente (`frap_values`) e covariate. `frap_values` è un vettore numerico che rappresenta il valore FRAP per ogni campione di sidro. Le covariate, rappresentate dalla matrice `covariates`, includono tutte le altre misure e concentrazioni di molecole nei sidri.
+
+```{r prepare-data}
+sidro_data <- read_excel("dati_sidro.xlsx")
+head(sidro_data)
+frap_values <- c(1, as.numeric(sidro_data[nrow(sidro_data), -1]))
+covariates <- as.matrix(sidro_data[-nrow(sidro_data), -1])
+covariates <- t(cbind(1 , covariates))
+covariates <- as.data.frame(covariates)
+# Verifica delle dimensioni
+print(length(frap_values))
+print(dim(covariates))
+```
+
+### Costruzione del Modello di Regressione Lineare Completo
+
+Il primo passo nell'analisi è costruire un modello di regressione lineare utilizzando tutte le covariate disponibili. Questo modello ci aiuterà a identificare quali covariate sono statisticamente significative.
+
+```{r full-model}
+model_full <- lm(frap_values ~ ., data = covariates)
+summary(model_full)
+```
+
+### Selezione delle Covariate Significative e Costruzione del Modello Ridotto
+
+Dopo aver identificato le covariate significative, costruiamo un modello di regressione ridotto che include solo queste covariate. Questo approccio ci permette di concentrarci sulle variabili più influenti.
+
+```{r reduced-model}
+significant_vars <- which(summary(model_full)$coefficients[, 4] < 0.05)
+significant_vars <- unname(significant_vars)
+significant_vars <- significant_vars - 1
+covariates_reduced <- covariates[,significant_vars]
+model_reduced <- lm(frap_values ~ ., data = as.data.frame(covariates_reduced))
+summary(model_reduced)
+```
+
+### Problemi?
+1. Intercetta ? che valori mettre
+2. Serve la gestioni dei 0 
+3. lm per lui va bene come analisi multivariata ?
+Buon Lavoro :)
